@@ -1,4 +1,4 @@
-# BENSYC Contracts
+# 100k Cats Contracts
 
 ## [Install Foundry](https://getfoundry.sh/)
 
