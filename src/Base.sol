@@ -4,15 +4,15 @@ pragma solidity >0.8.0 <0.9.0;
 import "src/Interface.sol";
 
 /**
- * @title BENSYC Definitions
+ * @title Definitions
  */
 
-abstract contract BENSYC {
+abstract contract ENSCAT {
     /// @dev : ENS Contract Interface
     iENS public ENS;
 
     /// @dev Pause/Resume contract
-    bool public active = false;
+    bool public active = true; // TESTNET
 
     /// @dev : Controller/Dev address
     address public Dev;
@@ -26,8 +26,8 @@ abstract contract BENSYC {
     }
 
     // ERC721 details
-    string public name = "BoredENSYachtClub.eth";
-    string public symbol = "BENSYC";
+    string public name = "100kCat.eth";
+    string public symbol = "ENSCAT";
 
     /// @dev : Default resolver used by this contract
     address public DefaultResolver;
@@ -36,16 +36,16 @@ abstract contract BENSYC {
     uint256 public totalSupply;
 
     /// @dev : $ETH per subdomain mint
-    uint256 public mintPrice = 0.01 ether;
+    uint256 public mintPrice = 0.001 ether; // TESTNET
 
     /// @dev : Opensea Contract URI
-    string public contractURI = "ipfs://QmceyxoNqfPv1LNfYnmgxasXr8m8ghC3TbYuFbbqhH8pfV";
+    string public contractURI = "ipfs://Qmblablabla";
 
-    /// @dev : ERC2981 Royalty info; 5 = 5%
-    uint256 public royalty = 5;
+    /// @dev : ERC2981 Royalty info; 1 = 1%
+    uint256 public royalty = 10; // TESTNET
 
     /// @dev : IPFS hash of metadata directory
-    string public metaIPFS = "QmYgWXKADuSgWziNgmpYa4PAmhFL3W7aGLR5C1dkRuNGfM";
+    string public metaIPFS = "Qmblablabla";
 
     mapping(address => uint256) public balanceOf;
     mapping(uint256 => address) internal _ownerOf;

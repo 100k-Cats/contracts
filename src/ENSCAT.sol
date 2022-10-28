@@ -6,18 +6,18 @@ import "src/Util.sol";
 import "src/Base.sol";
 
 /**
- * @author 0xc0de4c0ffee, sshmatrix
- * @title BENSYC Core
+ * @author sshmatrix, on behalf of BENSYC
+ * @title 100kCat Core
  */
 
-contract BoredENSYachtClub is BENSYC {
+contract ENS100kCAT is ENSCAT {
     using Util for uint256;
     using Util for bytes;
 
     /// @dev : maximum supply of subdomains
     uint256 public immutable maxSupply;
 
-    /// @dev : namehash of 'boredensyachtclub.eth'
+    /// @dev : namehash of '100kcat.eth'
     bytes32 public immutable DomainHash;
 
     /// @dev : start time of mint
@@ -34,7 +34,7 @@ contract BoredENSYachtClub is BENSYC {
         ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
         DefaultResolver = _resolver;
         DomainHash = keccak256(
-            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256("boredensyachtclub"))
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256("100kcat"))
         );
         maxSupply = _maxSupply;
         startTime = _startTime;

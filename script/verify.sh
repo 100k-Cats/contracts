@@ -1,1 +1,1 @@
-source .env && forge verify-contract --chain-id 4 0xb1985584060235eaf29f696c4b72f9ee35998cfc src/BENSYC.sol:BENSYC $ETHERSCAN_KEY
+source .env && forge verify-contract --chain-id 4 0xb1ab1ab1ab1ab1ab1a src/ENSCAT.sol:ENSCAT $ETHERSCAN_KEY

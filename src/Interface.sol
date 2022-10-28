@@ -99,7 +99,7 @@ interface iERC721Metadata {
     function tokenURI(uint256 _tokenId) external view returns (string memory);
 }
 
-interface iBENSYC {
+interface iENSCAT {
     function totalSupply() external view returns (uint256);
     function Dev() external view returns (address);
     function Namehash2ID(bytes32 node) external view returns (uint256);

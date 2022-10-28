@@ -5,11 +5,11 @@ import "src/Interface.sol";
 import "src/Util.sol";
 
 /**
- * @title BENSYC CCIP
+ * @title ENSCAT CCIP
  */
 
 abstract contract Clone {
-    iBENSYC public BENSYC;
+    iENSCAT public ENSCAT;
     iENS public ENS;
 
     // @dev : re-entrancy protectoooor
@@ -25,7 +25,7 @@ abstract contract Clone {
      * @dev : withdraw ether only to Dev (or multi-sig)
      */
     function withdrawEther() external {
-        require(msg.sender == BENSYC.Dev());
+        require(msg.sender == ENSCAT.Dev());
         payable(msg.sender).transfer(address(this).balance);
     }
 
@@ -35,15 +35,15 @@ abstract contract Clone {
      * @param _bal : amount to release
      */
     function withdrawToken(address _token, uint256 _bal) external {
-        require(msg.sender == BENSYC.Dev());
+        require(msg.sender == ENSCAT.Dev());
         iToken(_token).transferFrom(address(this), msg.sender, _bal);
     }
 }
 
 contract XCCIP is Clone {
-    bytes32 public immutable secondaryDomainHash; // ENS namehash of "bensyc.eth"
+    bytes32 public immutable secondaryDomainHash; // ENS namehash of "100k🙀.eth"
     bytes32 public immutable baseHash; // ens namehash of ".eth"
-    bytes32 public immutable primaryDomainHash; // ENS namehash of "boredensyachtclub.eth"
+    bytes32 public immutable primaryDomainHash; // ENS namehash of "100kcat.eth"
 
     /// @dev : CCIP https://eips.ethereum.org/EIPS/eip-3668
     error OffchainLookup(address sender, string[] urls, bytes callData, bytes4 callbackFunction, bytes extraData);
@@ -59,11 +59,11 @@ contract XCCIP is Clone {
         return (sig == XCCIP.resolve.selector || sig == XCCIP.supportsInterface.selector);
     }
 
-    constructor(address _bensyc) {
+    constructor(address _enscat) {
         baseHash = keccak256(abi.encodePacked(bytes32(0), keccak256("eth")));
-        secondaryDomainHash = keccak256(abi.encodePacked(baseHash, keccak256(bytes("bensyc"))));
-        primaryDomainHash = keccak256(abi.encodePacked(baseHash, keccak256(bytes("boredensyachtclub"))));
-        BENSYC = iBENSYC(_bensyc);
+        secondaryDomainHash = keccak256(abi.encodePacked(baseHash, keccak256(bytes(unicode"100k🙀"))));
+        primaryDomainHash = keccak256(abi.encodePacked(baseHash, keccak256(bytes("100kcat"))));
+        ENSCAT = iENSCAT(_enscat);
         ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     }
 
@@ -94,7 +94,7 @@ contract XCCIP is Clone {
                 ++j;
             }
         }
-        if (i >= BENSYC.totalSupply()) {
+        if (i >= ENSCAT.totalSupply()) {
             revert InvalidTokenID(string(labels[0]), 10_000);
         }
         return (keccak256(labels[0]), true);

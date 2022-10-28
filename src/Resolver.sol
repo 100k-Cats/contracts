@@ -5,14 +5,14 @@ import "src/Interface.sol";
 import "src/Util.sol";
 
 /**
- * @dev : BENSYC Resolver Base
+ * @dev : ENSCAT Resolver Base
  */
  
 abstract contract ResolverBase {
     /// @dev : Modifier to allow only dev
     modifier onlyDev() {
-        if (msg.sender != BENSYC.Dev()) {
-            revert OnlyDev(BENSYC.Dev(), msg.sender);
+        if (msg.sender != ENSCAT.Dev()) {
+            revert OnlyDev(ENSCAT.Dev(), msg.sender);
         }
         _;
     }
@@ -20,13 +20,13 @@ abstract contract ResolverBase {
     /// @dev : ENS Contract Interface
     iENS public ENS;
 
-    /// @dev : BENSYC Contract Interface
-    iBENSYC public BENSYC;
+    /// @dev : ENSCAT Contract Interface
+    iENSCAT public ENSCAT;
 
     mapping(bytes4 => bool) public supportsInterface;
 
     modifier isValidToken(uint256 id) {
-        if (id >= BENSYC.totalSupply()) {
+        if (id >= ENSCAT.totalSupply()) {
             revert InvalidTokenID(id);
         }
         _;
@@ -46,7 +46,7 @@ abstract contract ResolverBase {
      * @dev : withdraw ether only to Dev (or multi-sig)
      */
     function withdrawEther() external payable {
-        (bool ok,) = BENSYC.Dev().call{value: address(this).balance}("");
+        (bool ok,) = ENSCAT.Dev().call{value: address(this).balance}("");
         require(ok, "ETH_TRANSFER_FAILED");
     }
 
@@ -56,7 +56,7 @@ abstract contract ResolverBase {
      * @param bal : token balance to withdraw
      */
     function withdrawToken(address token, uint256 bal) external payable {
-        iERC20(token).transferFrom(address(this), BENSYC.Dev(), bal);
+        iERC20(token).transferFrom(address(this), ENSCAT.Dev(), bal);
     }
 
     // @dev : Revert on fallback
@@ -76,7 +76,7 @@ abstract contract ResolverBase {
 }
 
 /**
- * @title BENSYC Resolver
+ * @title ENSCAT Resolver
  */
 
 contract Resolver is ResolverBase {
@@ -90,8 +90,8 @@ contract Resolver is ResolverBase {
         return _contenthash[bytes32(0)];
     }
 
-    constructor(address _bensyc) {
-        BENSYC = iBENSYC(_bensyc);
+    constructor(address _enscat) {
+        ENSCAT = iENSCAT(_enscat);
         ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
         supportsInterface[iResolver.addr.selector] = true;
         supportsInterface[iResolver.contenthash.selector] = true;
@@ -257,9 +257,9 @@ contract Resolver is ResolverBase {
                     "eip155:",
                     block.chainid.toString(),
                     "/erc721:",
-                    abi.encodePacked(address(BENSYC)).toHexString(),
+                    abi.encodePacked(address(ENSCAT)).toHexString(),
                     "/",
-                    BENSYC.Namehash2ID(node).toString()
+                    ENSCAT.Namehash2ID(node).toString()
                 );
             } else {
                 return _text[bytes32(0)][key];
@@ -287,7 +287,7 @@ contract Resolver is ResolverBase {
     function name(bytes32 node) external view returns (string memory _name) {
         _name = _text[node]["name"];
         if (bytes(_name).length == 0) {
-            return string.concat(BENSYC.Namehash2ID(node).toString(), ".boredensyachtclub.eth");
+            return string.concat(ENSCAT.Namehash2ID(node).toString(), ".100kcat.eth");
         }
     }
 }

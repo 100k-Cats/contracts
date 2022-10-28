@@ -1,1 +1,1 @@
-source .env && forge coverage --rpc-url $RINKEBY_RPC_URL -vvvv
+source .env && forge coverage --rpc-url $GOERLI_RPC_URL -vvvv
