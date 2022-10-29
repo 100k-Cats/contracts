@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 import "src/ENSCAT.sol";
 import "src/Resolver.sol";
-import "src/XCCIP.sol";
+// import "src/XCCIP.sol";
 import "test/GenAddr.sol";
 
 // @dev : for testing
@@ -37,19 +37,27 @@ contract ENSCATTest is Test {
     /// @dev : set contract as controller for 100kcat.eth
     function setUp() public {
         address _addr = ENS.owner(enscat.DomainHash());
+        address digitOwner = ENS.owner(keccak256(
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+        ));
+        require(_addr == digitOwner, "Ownership not set"); // Dev must own both
         require(_addr != address(0), "Revert: 0 address detected");
         vm.prank(_addr);
         ENS.setApprovalForAll(address(enscat), true);
     }
 
+    string public digits = "07777"; 
+    string public illegalENS = "0897";
     ENS100kCAT public enscat;
-
     //XCCIP public _xccip;
     Resolver public resolver;
     uint256 public mintPrice;
     iENS public ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     CannotReceive721 public _notReceiver;
     CanReceive721 public _isReceiver;
+    address public actor = ENS.owner(keccak256(
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+        ));
 
     constructor() {
         address deployer = address(this);
@@ -82,10 +90,11 @@ contract ENSCATTest is Test {
 
     /// @dev : test minting one subdomain, verify ownership & resolver
     function testSubdomainMint() public {
-        enscat.mint{value: mintPrice}();
-        assertEq(enscat.ownerOf(0), address(this));
-        assertEq(enscat.balanceOf(address(this)), 1);
-        assertEq(ENS.owner(enscat.ID2Namehash(0)), address(this));
+        vm.prank(actor);
+        enscat.mint{value: mintPrice}(digits);
+        assertEq(enscat.ownerOf(0), actor);
+        assertEq(enscat.balanceOf(actor), 1);
+        assertEq(ENS.owner(enscat.ID2Namehash(0)), actor);
         assertEq(ENS.resolver(enscat.ID2Namehash(0)), address(enscat.DefaultResolver()));
     }
 
@@ -93,39 +102,45 @@ contract ENSCATTest is Test {
     function testMintTokensIndividually() public {
         uint256 maxSupply = 100;
         for (uint256 i = 0; i < maxSupply; i++) {
-            enscat.mint{value: mintPrice}();
-            assertEq(enscat.ownerOf(i), address(this));
-            assertEq(ENS.owner(enscat.ID2Namehash(i)), address(this));
+            vm.prank(actor);
+            enscat.mint{value: mintPrice}(digits);
+            assertEq(enscat.ownerOf(i), actor);
+            assertEq(ENS.owner(enscat.ID2Namehash(i)), actor);
             assertEq(ENS.resolver(enscat.ID2Namehash(i)), address(enscat.DefaultResolver()));
         }
         assertEq(enscat.totalSupply(), 100);
         vm.expectRevert(abi.encodeWithSelector(ENSCAT.InvalidTokenID.selector, uint256(100)));
         enscat.ownerOf(100);
-        assertEq(enscat.ownerOf(99), address(this));
+        assertEq(enscat.ownerOf(99), actor);
     }
 
-    /// @dev : test minting a batch with size < 13
-    function testBatchMint() public {
-        uint256 batchSize = 10;
-        enscat.batchMint{value: batchSize * mintPrice}(batchSize);
+    /// @dev : test minting a batch with size = 3
+    function testFullBatchMint() public {
+        uint256 batchSize = 3;
+        string[3] memory list = ["42059", "07777","00234"];
+        vm.prank(actor);
+        enscat.batchMint{value: batchSize * mintPrice}(batchSize, list);
         for (uint256 i = 0; i < batchSize; i++) {
-            assertEq(enscat.ownerOf(i), address(this));
-            assertEq(ENS.owner(enscat.ID2Namehash(i)), address(this));
+            assertEq(enscat.ownerOf(i), actor);
+            assertEq(ENS.owner(enscat.ID2Namehash(i)), actor);
             assertEq(ENS.resolver(enscat.ID2Namehash(i)), address(enscat.DefaultResolver()));
         }
     }
-
-    /// @dev : verify that batchMint() fails when batchSize > 12
-    function testCannotMintOversizedBatch() public {
-        uint256 batchSize = 13;
-        vm.expectRevert(abi.encodeWithSelector(ENSCAT.OversizedBatch.selector));
-        enscat.batchMint{value: batchSize * mintPrice}(batchSize);
+ 
+    /// @dev : verify that batchMint() succeeds when batchSize <= 3
+    function testPartialBatchMint() public {
+        uint256 batchSize = 2;
+        string[3] memory list = ["42059", "16342", ""];
+        vm.prank(actor);
+        enscat.batchMint{value: batchSize * mintPrice}(batchSize, list);
     }
 
     /// @dev : verify that owner can transfer subdomain
     function testSubdomainTransfer() public {
-        enscat.mint{value: mintPrice}();
+        vm.prank(actor);
+        enscat.mint{value: mintPrice}(digits);
         address _addr = enscat.ownerOf(0);
+        vm.prank(actor);
         enscat.transferFrom(_addr, address(0xc0de4c0cac01a), 0);
         _addr = enscat.ownerOf(0);
         assertEq(_addr, address(0xc0de4c0cac01a));
@@ -133,23 +148,28 @@ contract ENSCATTest is Test {
 
     /// @dev : verify that contract (= parent controller) cannot transfer a subdomain
     function testControllerContractCannotTransfer() public {
-        enscat.mint{value: mintPrice}();
+        vm.prank(actor);
+        enscat.mint{value: mintPrice}(digits);
         vm.expectRevert(
-            abi.encodeWithSelector(ENSCAT.NotSubdomainOwner.selector, address(this), address(0xc0de4c0cac01a), 0)
+            abi.encodeWithSelector(ENSCAT.NotSubdomainOwner.selector, actor, address(0xc0de4c0cac01a), 0)
         );
         enscat.transferFrom(address(0xc0de4c0cac01a), address(0xc0de4c0cac01a), 0);
     }
 
     /// @dev : verify that valid contract can receive a subdomain
     function testExternalContractCanReceive() public {
-        enscat.mint{value: mintPrice}();
-        enscat.transferFrom(address(this), address(_isReceiver), 0);
+        vm.prank(actor);
+        enscat.mint{value: mintPrice}(digits);
+        vm.prank(actor);
+        enscat.transferFrom(actor, address(_isReceiver), 0);
     }
 
     /// @dev : verify that contract (= parent controller) cannot receive a subdomain
     function testControllerContractCannotReceive() public {
-        enscat.mint{value: mintPrice}();
+        vm.prank(actor);
+        enscat.mint{value: mintPrice}(digits);
         vm.expectRevert(abi.encodeWithSelector(ENSCAT.ERC721IncompatibleReceiver.selector, address(_notReceiver)));
-        enscat.transferFrom(address(this), address(_notReceiver), 0);
+        vm.prank(actor);
+        enscat.transferFrom(actor, address(_notReceiver), 0);
     }
 }

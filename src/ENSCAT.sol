@@ -4,6 +4,7 @@ pragma solidity >0.8.0 <0.9.0;
 import "src/Interface.sol";
 import "src/Util.sol";
 import "src/Base.sol";
+import "forge-std/console2.sol"; // TESTNET
 
 /**
  * @author sshmatrix, on behalf of BENSYC
@@ -13,6 +14,7 @@ import "src/Base.sol";
 contract ENS100kCAT is ENSCAT {
     using Util for uint256;
     using Util for bytes;
+    using Util for string;
 
     /// @dev : maximum supply of subdomains
     uint256 public immutable maxSupply;
@@ -66,14 +68,29 @@ contract ENS100kCAT is ENSCAT {
 
     /**
      * @dev mint() function for single sudomain
+     * @param digits : subdomain to mint
      */
-    function mint() external payable {
+    function mint(string memory digits) external payable {
         if (!active) {
             revert MintingPaused();
         }
 
         if (block.timestamp < startTime) {
             revert TooSoonToMint();
+        }
+
+        if (digits.strlen() != 5 || !digits.isNumeric()) {
+            revert IllegalENS(digits);
+        }
+
+        address digitOwner = ENS.owner(keccak256(
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+        ));
+        
+        if (msg.sender != digitOwner) {
+            if (!ENS.isApprovedForAll(digitOwner, msg.sender)) {
+                revert NotOwnerOrController(digits);
+            }
         }
 
         if (totalSupply >= maxSupply) {
@@ -85,7 +102,7 @@ contract ENS100kCAT is ENSCAT {
         }
 
         uint256 _id = totalSupply;
-        bytes32 _labelhash = keccak256(abi.encodePacked(_id.toString()));
+        bytes32 _labelhash = keccak256(abi.encodePacked(digits));
         ENS.setSubnodeRecord(DomainHash, _labelhash, msg.sender, DefaultResolver, 0);
         ID2Labelhash[_id] = _labelhash;
         Namehash2ID[keccak256(abi.encodePacked(DomainHash, _labelhash))] = _id;
@@ -99,9 +116,11 @@ contract ENS100kCAT is ENSCAT {
 
     /**
      * @dev : batchMint() function for sudomains
-     * @param batchSize : number of subdomains to mint in the batch (maximum batchSize = 12)
+     * @param batchSize : number of subdomains to mint in the batch (maximum batchSize = 3)
+     * @param list : list of subdomains
+     * if batchSize < list.length, mint [1, batchSize]
      */
-    function batchMint(uint256 batchSize) external payable {
+    function batchMint(uint256 batchSize, string[3] memory list) external payable {
         if (!active) {
             revert MintingPaused();
         }
@@ -110,20 +129,38 @@ contract ENS100kCAT is ENSCAT {
             revert TooSoonToMint();
         }
 
-        if (batchSize > 12 || totalSupply + batchSize > maxSupply) {
-            // maximum batchSize = floor of [12, maxSupply - totalSupply]
-            revert OversizedBatch();
+        if (batchSize > 3 || list.length > 3 || totalSupply + batchSize > maxSupply) {
+            // maximum batchSize = floor of [3, maxSupply - totalSupply]
+            revert IllegalBatch(list);
         }
 
         if (msg.value < mintPrice * batchSize) {
             revert InsufficientEtherSent(mintPrice * batchSize, msg.value);
         }
 
+        for (uint256 i = 0; i < batchSize; i++) {
+            string memory digits = list[i];
+
+            if (digits.strlen() != 5 || !digits.isNumeric()) {
+                revert IllegalENS(digits);
+            }
+
+            address digitOwner = ENS.owner(keccak256(
+                abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+            ));
+            console2.log(digitOwner);
+            if (msg.sender != digitOwner) {
+                if (!ENS.isApprovedForAll(digitOwner, msg.sender)) {
+                    revert NotOwnerOrController(digits);
+                }
+            }
+        }
+
         uint256 _id = totalSupply;
         uint256 _mint = _id + batchSize;
         bytes32 _labelhash;
-        while (_id < _mint) {
-            _labelhash = keccak256(abi.encodePacked(_id.toString()));
+        for (uint256 i = 0; i < batchSize; i++) {
+            _labelhash = keccak256(abi.encodePacked(list[i]));
             ENS.setSubnodeRecord(DomainHash, _labelhash, msg.sender, DefaultResolver, 0);
             ID2Labelhash[_id] = _labelhash;
             Namehash2ID[keccak256(abi.encodePacked(DomainHash, _labelhash))] = _id;
@@ -299,7 +336,7 @@ contract ENS100kCAT is ENSCAT {
      * @dev EIP2981 royalty standard
      * @param _royalty : royalty (1 = 1 %)
      */
-    function setRoyalty(uint256 _royalty) external onlyDev {
+    function setRoyalty(uint8 _royalty) external onlyDev {
         royalty = _royalty;
     }
 }

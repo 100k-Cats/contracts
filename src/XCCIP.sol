@@ -5,7 +5,7 @@ import "src/Interface.sol";
 import "src/Util.sol";
 
 /**
- * @title ENSCAT CCIP
+ * @title ENSCAT CCIP (inactive)
  */
 
 abstract contract Clone {

@@ -42,7 +42,7 @@ abstract contract ENSCAT {
     string public contractURI = "ipfs://Qmblablabla";
 
     /// @dev : ERC2981 Royalty info; 1 = 1%
-    uint256 public royalty = 10; // TESTNET
+    uint8 public royalty = 10; // TESTNET
 
     /// @dev : IPFS hash of metadata directory
     string public metaIPFS = "Qmblablabla";
@@ -70,8 +70,10 @@ abstract contract ENSCAT {
     error MintingPaused();
     error MintEnded();
     error ZeroAddress();
-    error OversizedBatch();
+    error IllegalBatch(string[3] list);
     error TooSoonToMint();
+    error IllegalENS(string digits);
+    error NotOwnerOrController(string digits);
 
     modifier isValidToken(uint256 id) {
         if (id >= totalSupply) {

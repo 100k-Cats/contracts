@@ -13,9 +13,11 @@ interface iResolver {
     function name(bytes32 node) external view returns (string memory);
 }
 
+/*
 interface iCCIP {
     function resolve(bytes memory name, bytes memory data) external view returns (bytes memory);
 }
+*/
 
 interface iERC20 {
     event Transfer(address indexed from, address indexed to, uint256 amount);

@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import "src/ENSCAT.sol";
 import "src/Resolver.sol";
 import "src/Interface.sol";
-import "src/XCCIP.sol";
+// import "src/XCCIP.sol";
 import "test/GenAddr.sol";
 
 contract ENSCATScript is Script {
@@ -23,7 +23,7 @@ contract ENSCATScript is Script {
         address deployer = address(msg.sender);
         address enscatAddr = deployer.genAddr(vm.getNonce(deployer) + 1);
         Resolver resolver = new Resolver(enscatAddr);
-        ENS100kCAT _enscat = new ENS100kCAT(address(resolver), 10_000, startTime);
+        ENS100kCAT _enscat = new ENS100kCAT(address(resolver), 100_000, startTime);
 
         /// @dev : Check if generated address matches deployed address
         require(address(_enscat) == enscatAddr, "CRITICAL: ADDRESSES NOT MATCHING");
@@ -35,9 +35,9 @@ contract ENSCATScript is Script {
         _ens.setApprovalForAll(address(_enscat), true);
 
         /// @dev : CCIP Call
-        XCCIP xccip = new XCCIP(address(_enscat));
+        // XCCIP xccip = new XCCIP(address(_enscat));
 
         vm.stopBroadcast();
-        xccip; //silence warning
+        // xccip; //silence warning
     }
 }
