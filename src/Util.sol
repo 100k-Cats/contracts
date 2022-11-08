@@ -69,9 +69,9 @@ library Util {
     }
 
     /**
-     * @dev Convert uint value to string number
+     * @dev Convert uint value to string
      * @param value : uint value to be converted
-     * @return : number as string
+     * @return : decimal number as string
      */
     function toString(uint256 value) internal pure returns (string memory) {
         // Inspired by OraclizeAPI's implementation - MIT licence

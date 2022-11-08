@@ -14,6 +14,9 @@ abstract contract ENSCAT {
     /// @dev Pause/Resume contract
     bool public active = true; // TESTNET
 
+    /// @dev Phase Epochs [phase1Start, phase2Start, phase3Start]
+    uint256[3] public epochs = [block.timestamp, block.timestamp + 86400, block.timestamp + 2 * 86400]; // TESTNET
+
     /// @dev : Controller/Dev address
     address public Dev;
 
@@ -38,14 +41,17 @@ abstract contract ENSCAT {
     /// @dev : $ETH per subdomain mint
     uint256 public mintPrice = 0.001 ether; // TESTNET
 
+    /// @dev : maximum size of batch
+    uint8 public bigBatch = 5; // TESTNET
+
     /// @dev : Opensea Contract URI
-    string public contractURI = "ipfs://Qmblablabla";
+    string public contractURI = "ipfs://QmUjDe4btQWtwdLY7LDfFFUo2pCT1iskbubE6qKExeAcmx"; // TESTNET
 
     /// @dev : ERC2981 Royalty info; 1 = 1%
     uint8 public royalty = 10; // TESTNET
 
     /// @dev : IPFS hash of metadata directory
-    string public metaIPFS = "Qmblablabla";
+    string public metaIPFS = "QmUxSUVzaPnR2SJt5iMhaQ8k7RLVeqkBHN6tqG5JgvTX7N"; // TESTNET
 
     mapping(address => uint256) public balanceOf;
     mapping(uint256 => address) internal _ownerOf;
@@ -55,6 +61,7 @@ abstract contract ENSCAT {
     mapping(bytes4 => bool) public supportsInterface;
     mapping(uint256 => bytes32) public ID2Labelhash;
     mapping(bytes32 => uint256) public Namehash2ID;
+    mapping(address => bool) public whitelist;
 
     event Transfer(address indexed from, address indexed to, uint256 indexed id);
     event Approval(address indexed _owner, address indexed approved, uint256 indexed id);
@@ -70,10 +77,12 @@ abstract contract ENSCAT {
     error MintingPaused();
     error MintEnded();
     error ZeroAddress();
-    error IllegalBatch(string[3] list);
+    error IllegalBatch(string[] list);
     error TooSoonToMint();
     error IllegalENS(string digits);
-    error NotOwnerOrController(string digits);
+    error NotOwnerOfENS(string digits);
+    error DigitNotAvailable(string digits);
+    error NotOnWhitelist();
 
     modifier isValidToken(uint256 id) {
         if (id >= totalSupply) {
@@ -106,6 +115,26 @@ abstract contract ENSCAT {
      */
     function withdrawToken(address token) external payable {
         iERC20(token).transferFrom(address(this), Dev, iERC20(token).balanceOf(address(this)));
+    }
+
+     /**
+     * @dev : add to whitelist
+     * @param add : addresses to add
+     */
+    function addToWhitelist(address[] calldata add) external onlyDev {
+        for (uint16 i = 0; i < add.length; i++) {
+            whitelist[add[i]] = true;
+        }
+    }
+
+    /**
+     * @dev : remove from whitelist
+     * @param remove : addresses to remove
+     */
+    function removeFromWhitelist(address[] calldata remove) external onlyDev {
+        for (uint16 i = 0; i < remove.length; i++) {
+            delete whitelist[remove[i]];
+        }
     }
 
     /// @dev : revert on fallback

@@ -46,7 +46,7 @@ contract ENSCATTest is Test {
         ENS.setApprovalForAll(address(enscat), true);
     }
 
-    string public digits = "07777"; 
+    string public digits = "00075"; 
     string public illegalENS = "0897";
     ENS100kCAT public enscat;
     //XCCIP public _xccip;
@@ -63,8 +63,7 @@ contract ENSCATTest is Test {
         address deployer = address(this);
         address enscatAddr = deployer.genAddr(vm.getNonce(deployer) + 1);
         resolver = new Resolver(enscatAddr);
-        uint256 startTime = block.timestamp;
-        enscat = new ENS100kCAT(address(resolver), 100, startTime);
+        enscat = new ENS100kCAT(address(resolver), 10);
         require(address(enscat) == enscatAddr, "CRITICAL: ADDRESSES NOT MATCHING");
         _notReceiver = new CannotReceive721();
         _isReceiver = new CanReceive721();
@@ -88,8 +87,8 @@ contract ENSCATTest is Test {
         assertTrue(ENS.isApprovedForAll(_addr, address(enscat)));
     }
 
-    /// @dev : test minting one subdomain, verify ownership & resolver
-    function testSubdomainMint() public {
+    /// @dev : test minting one subdomain, verify ownership & resolver in Phase 1
+    function testPhase1Mint() public {
         vm.prank(actor);
         enscat.mint{value: mintPrice}(digits);
         assertEq(enscat.ownerOf(0), actor);
@@ -98,42 +97,142 @@ contract ENSCATTest is Test {
         assertEq(ENS.resolver(enscat.ID2Namehash(0)), address(enscat.DefaultResolver()));
     }
 
-    /// @dev : test minting out the entire supply one by one
-    function testMintTokensIndividually() public {
-        uint256 maxSupply = 100;
-        for (uint256 i = 0; i < maxSupply; i++) {
-            vm.prank(actor);
-            enscat.mint{value: mintPrice}(digits);
+    /// @dev : test minting a batch with size <= bigBatch in Phase 1
+    function testPhase1BatchMint() public {
+        // "42059", "07777", "00234", "00081", "00033"
+        string[] memory _list = new string[](4);
+        _list[0] = "42059";
+        _list[1] = "07777";
+        _list[2] = "00234";
+        _list[3] = "00081";
+        vm.prank(actor);
+        enscat.batchMint{value: _list.length * mintPrice}(_list);
+        for (uint256 i = 0; i < _list.length; i++) {
             assertEq(enscat.ownerOf(i), actor);
             assertEq(ENS.owner(enscat.ID2Namehash(i)), actor);
             assertEq(ENS.resolver(enscat.ID2Namehash(i)), address(enscat.DefaultResolver()));
         }
-        assertEq(enscat.totalSupply(), 100);
-        vm.expectRevert(abi.encodeWithSelector(ENSCAT.InvalidTokenID.selector, uint256(100)));
-        enscat.ownerOf(100);
-        assertEq(enscat.ownerOf(99), actor);
     }
 
-    /// @dev : test minting a batch with size = 3
-    function testFullBatchMint() public {
-        uint256 batchSize = 3;
-        string[3] memory list = ["42059", "07777","00234"];
+    /// @dev : test minting one subdomain, verify ownership & resolver in Phase 2
+    function testPhase2Mint() public {
+        // start phase 2
+        enscat.setEpochs([block.timestamp - 200, block.timestamp, block.timestamp + 200]);
+        address[] memory _addrAllow = new address[](1);
+        _addrAllow[0] = actor;
+        // add minter to whitelist
+        enscat.addToWhitelist(_addrAllow);
+        string memory notOwned = "02345";
         vm.prank(actor);
-        enscat.batchMint{value: batchSize * mintPrice}(batchSize, list);
-        for (uint256 i = 0; i < batchSize; i++) {
+        enscat.mint{value: mintPrice}(notOwned);
+        assertEq(enscat.ownerOf(0), actor);
+        assertEq(enscat.balanceOf(actor), 1);
+        assertEq(ENS.owner(enscat.ID2Namehash(0)), actor);
+        assertEq(ENS.resolver(enscat.ID2Namehash(0)), address(enscat.DefaultResolver()));
+        // remove minter from whitelist
+        enscat.removeFromWhitelist(_addrAllow);
+        vm.prank(actor);
+        vm.expectRevert("NOT_IN_WHITELIST");
+        enscat.mint{value: mintPrice}(notOwned);
+    }
+
+    /// @dev : test minting a batch with size <= bigBatch in Phase 2
+    function testPhase2BatchMint() public {
+        // start phase 2
+        enscat.setEpochs([block.timestamp - 200, block.timestamp, block.timestamp + 200]);
+        address[] memory _addrAllow = new address[](1);
+        _addrAllow[0] = actor;
+        // add minter to whitelist
+        enscat.addToWhitelist(_addrAllow);
+        // "42059", "07777", "00234", "00081", "00033"
+        string[] memory _list = new string[](4);
+        _list[0] = "12361";
+        _list[1] = "07347";
+        _list[2] = "09464";
+        _list[3] = "00681";
+        vm.prank(actor);
+        enscat.batchMint{value: _list.length * mintPrice}(_list);
+        for (uint256 i = 0; i < _list.length; i++) {
+            assertEq(enscat.ownerOf(i), actor);
+            assertEq(ENS.owner(enscat.ID2Namehash(i)), actor);
+            assertEq(ENS.resolver(enscat.ID2Namehash(i)), address(enscat.DefaultResolver()));
+        }
+        // remove minter from whitelist
+        enscat.removeFromWhitelist(_addrAllow);
+        vm.prank(actor);
+        vm.expectRevert("NOT_IN_WHITELIST");
+        enscat.batchMint{value: _list.length * mintPrice}(_list);
+    }
+
+    /// @dev : test minting one subdomain, verify ownership & resolver in Phase 3
+    function testPhase3Mint() public {
+        // start phase 3
+        enscat.setEpochs([block.timestamp - 400, block.timestamp - 200, block.timestamp]);
+        string memory notOwned = "08462";
+        vm.prank(actor);
+        enscat.mint{value: mintPrice}(notOwned);
+        assertEq(enscat.ownerOf(0), actor);
+        assertEq(enscat.balanceOf(actor), 1);
+        assertEq(ENS.owner(enscat.ID2Namehash(0)), actor);
+        assertEq(ENS.resolver(enscat.ID2Namehash(0)), address(enscat.DefaultResolver()));
+    }
+
+    /// @dev : test minting a batch with size <= bigBatch in Phase 3
+    function testPhase3BatchMint() public {
+        // start phase 3
+        enscat.setEpochs([block.timestamp - 400, block.timestamp - 200, block.timestamp]);
+        // "42059", "07777", "00234", "00081", "00033"
+        string[] memory _list = new string[](4);
+        _list[0] = "12361";
+        _list[1] = "07347";
+        _list[2] = "09464";
+        _list[3] = "00681";
+        vm.prank(actor);
+        enscat.batchMint{value: _list.length * mintPrice}(_list);
+        for (uint256 i = 0; i < _list.length; i++) {
             assertEq(enscat.ownerOf(i), actor);
             assertEq(ENS.owner(enscat.ID2Namehash(i)), actor);
             assertEq(ENS.resolver(enscat.ID2Namehash(i)), address(enscat.DefaultResolver()));
         }
     }
- 
-    /// @dev : verify that batchMint() succeeds when batchSize <= 3
-    function testPartialBatchMint() public {
-        uint256 batchSize = 2;
-        string[3] memory list = ["42059", "16342", ""];
+
+    /// @dev : verify that same digit cannot be minted twice
+    function testCannotMintDigitTwice() public {
+        /// first: expect success
         vm.prank(actor);
-        enscat.batchMint{value: batchSize * mintPrice}(batchSize, list);
+        enscat.mint{value: mintPrice}(digits);
+        assertEq(enscat.ownerOf(0), actor);
+        /// second: expect revert
+        vm.prank(actor);
+        vm.expectRevert(abi.encodeWithSelector(ENSCAT.DigitNotAvailable.selector, string(digits)));
+        enscat.mint{value: mintPrice}(digits);
     }
+
+    /// @dev : verify that same digit cannot be minted twice in a batch
+    function testCannotMintDigitTwiceInBatch() public {
+        string[] memory _list = new string[](3);
+        _list[0] = "42059";
+        _list[1] = "07777";
+        _list[2] = "42059";
+        vm.prank(actor);
+        vm.expectRevert(abi.encodeWithSelector(ENSCAT.DigitNotAvailable.selector, string(_list[2])));
+        enscat.batchMint{value: _list.length * mintPrice}(_list);
+    }
+ 
+    /// @dev : verify that batchMint() fails when batchSize > bigbatch
+    function testCannotMintOversizedBatch() public {
+        string[] memory _list = new string[](6);
+        _list[0] = "42059";
+        _list[1] = "07777";
+        _list[2] = "00234";
+        _list[3] = "00033";
+        _list[4] = "00075";
+        _list[5] = "00081";
+        vm.prank(actor);
+        vm.expectRevert(abi.encodeWithSelector(ENSCAT.IllegalBatch.selector, _list));
+        enscat.batchMint{value: _list.length * mintPrice}(_list);
+    }
+ 
 
     /// @dev : verify that owner can transfer subdomain
     function testSubdomainTransfer() public {

@@ -16,14 +16,11 @@ contract ENSCATScript is Script {
     function run() external {
         vm.startBroadcast();
 
-        /// @dev : Start time of minting
-        uint256 startTime = 1662724800; // Fri, Sept 9 2022, 12:00 UTC
-
         /// @dev : Generate contract address before deployment
         address deployer = address(msg.sender);
         address enscatAddr = deployer.genAddr(vm.getNonce(deployer) + 1);
         Resolver resolver = new Resolver(enscatAddr);
-        ENS100kCAT _enscat = new ENS100kCAT(address(resolver), 100_000, startTime);
+        ENS100kCAT _enscat = new ENS100kCAT(address(resolver), 100_000);
 
         /// @dev : Check if generated address matches deployed address
         require(address(_enscat) == enscatAddr, "CRITICAL: ADDRESSES NOT MATCHING");

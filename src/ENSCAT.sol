@@ -14,6 +14,7 @@ import "forge-std/console2.sol"; // TESTNET
 contract ENS100kCAT is ENSCAT {
     using Util for uint256;
     using Util for bytes;
+    using Util for bytes32;
     using Util for string;
 
     /// @dev : maximum supply of subdomains
@@ -22,16 +23,12 @@ contract ENS100kCAT is ENSCAT {
     /// @dev : namehash of '100kcat.eth'
     bytes32 public immutable DomainHash;
 
-    /// @dev : start time of mint
-    uint256 public immutable startTime;
-
     /**
      * @dev Constructor
      * @param _resolver : default Resolver
      * @param _maxSupply : maximum supply of subdomains
-     * @param _startTime : start time of mint
      */
-    constructor(address _resolver, uint256 _maxSupply, uint256 _startTime) {
+    constructor(address _resolver, uint256 _maxSupply) {
         Dev = msg.sender;
         ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
         DefaultResolver = _resolver;
@@ -39,7 +36,6 @@ contract ENS100kCAT is ENSCAT {
             abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256("100kcat"))
         );
         maxSupply = _maxSupply;
-        startTime = _startTime;
         // Interface
         supportsInterface[type(iERC165).interfaceId] = true;
         supportsInterface[type(iERC173).interfaceId] = true;
@@ -71,38 +67,44 @@ contract ENS100kCAT is ENSCAT {
      * @param digits : subdomain to mint
      */
     function mint(string memory digits) external payable {
+        // check if active
         if (!active) {
             revert MintingPaused();
         }
-
-        if (block.timestamp < startTime) {
-            revert TooSoonToMint();
-        }
-
-        if (digits.strlen() != 5 || !digits.isNumeric()) {
-            revert IllegalENS(digits);
-        }
-
-        address digitOwner = ENS.owner(keccak256(
-            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
-        ));
-        
-        if (msg.sender != digitOwner) {
-            if (!ENS.isApprovedForAll(digitOwner, msg.sender)) {
-                revert NotOwnerOrController(digits);
-            }
-        }
-
+        // check supply
         if (totalSupply >= maxSupply) {
             revert MintEnded();
         }
-
+        // check payment
         if (msg.value < mintPrice) {
             revert InsufficientEtherSent(mintPrice, msg.value);
+        }
+        // check if ENS belongs to 100k Club
+        if (digits.strlen() != 5 || !digits.isNumeric()) {
+            revert IllegalENS(digits);
+        }
+        // check permissions depending on phase of mint
+        if (block.timestamp < epochs[0]) { // too soon to mint
+            revert TooSoonToMint();
+        } else if (block.timestamp >= epochs[0] && block.timestamp < epochs[1]) { // Phase 1
+            // get ENS ownership
+            address digitOwner = ENS.owner(keccak256(
+                abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+            ));
+            if (msg.sender != digitOwner) {
+                revert NotOwnerOfENS(digits);
+            }
+        } else if (block.timestamp >= epochs[1] && block.timestamp < epochs[2]) { 
+            require(whitelist[msg.sender], "NOT_IN_WHITELIST");
         }
 
         uint256 _id = totalSupply;
         bytes32 _labelhash = keccak256(abi.encodePacked(digits));
+        address subOwner = ENS.owner(keccak256(abi.encodePacked(DomainHash, _labelhash)));
+        // check if subdomain is available to mint
+        if (subOwner != address(0)) {
+            revert DigitNotAvailable(digits);
+        }
         ENS.setSubnodeRecord(DomainHash, _labelhash, msg.sender, DefaultResolver, 0);
         ID2Labelhash[_id] = _labelhash;
         Namehash2ID[keccak256(abi.encodePacked(DomainHash, _labelhash))] = _id;
@@ -116,51 +118,57 @@ contract ENS100kCAT is ENSCAT {
 
     /**
      * @dev : batchMint() function for sudomains
-     * @param batchSize : number of subdomains to mint in the batch (maximum batchSize = 3)
-     * @param list : list of subdomains
-     * if batchSize < list.length, mint [1, batchSize]
+     * @param _list : list of subdomains
      */
-    function batchMint(uint256 batchSize, string[3] memory list) external payable {
+    function batchMint(string[] calldata _list) external payable {
+        // check if active
         if (!active) {
             revert MintingPaused();
         }
-
-        if (block.timestamp < startTime) {
-            revert TooSoonToMint();
+        uint256 batchSize = _list.length;
+        // check batch size and supply
+        if (_list.length > bigBatch || totalSupply + batchSize > maxSupply) {
+            revert IllegalBatch(_list);
         }
-
-        if (batchSize > 3 || list.length > 3 || totalSupply + batchSize > maxSupply) {
-            // maximum batchSize = floor of [3, maxSupply - totalSupply]
-            revert IllegalBatch(list);
-        }
-
+        // check payment
         if (msg.value < mintPrice * batchSize) {
             revert InsufficientEtherSent(mintPrice * batchSize, msg.value);
         }
-
-        for (uint256 i = 0; i < batchSize; i++) {
-            string memory digits = list[i];
-
+        // check if ENSes belong to 100k Club
+        for (uint8 i = 0; i < batchSize; i++) {
+            string memory digits = _list[i];
             if (digits.strlen() != 5 || !digits.isNumeric()) {
                 revert IllegalENS(digits);
             }
-
-            address digitOwner = ENS.owner(keccak256(
-                abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
-            ));
-            console2.log(digitOwner);
-            if (msg.sender != digitOwner) {
-                if (!ENS.isApprovedForAll(digitOwner, msg.sender)) {
-                    revert NotOwnerOrController(digits);
+        }
+        // check permissions depending on phase of mint
+        if (block.timestamp < epochs[0]) { // too soon to mint
+            revert TooSoonToMint();
+        } else if (block.timestamp >= epochs[0] && block.timestamp < epochs[1]) { // Phase 1
+            for (uint8 i = 0; i < batchSize; i++) {
+                string memory digits = _list[i];
+                // get ENS ownership
+                address digitOwner = ENS.owner(keccak256(
+                    abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+                ));
+                if (msg.sender != digitOwner) {
+                    revert NotOwnerOfENS(digits);
                 }
             }
+        } else if (block.timestamp >= epochs[1] && block.timestamp < epochs[2]) { // Phase 2
+            require(whitelist[msg.sender], "NOT_IN_WHITELIST");
         }
 
         uint256 _id = totalSupply;
         uint256 _mint = _id + batchSize;
         bytes32 _labelhash;
-        for (uint256 i = 0; i < batchSize; i++) {
-            _labelhash = keccak256(abi.encodePacked(list[i]));
+        for (uint8 i = 0; i < batchSize; i++) {
+            _labelhash = keccak256(abi.encodePacked(_list[i]));
+            // check if subdomain is available to mint
+            address subOwner = ENS.owner(keccak256(abi.encodePacked(DomainHash, _labelhash)));
+            if (subOwner != address(0)) {
+                revert DigitNotAvailable(_list[i]);
+            }
             ENS.setSubnodeRecord(DomainHash, _labelhash, msg.sender, DefaultResolver, 0);
             ID2Labelhash[_id] = _labelhash;
             Namehash2ID[keccak256(abi.encodePacked(DomainHash, _labelhash))] = _id;
@@ -331,12 +339,20 @@ contract ENS100kCAT is ENSCAT {
         contractURI = _contractURI;
     }
 
-    //
     /**
      * @dev EIP2981 royalty standard
      * @param _royalty : royalty (1 = 1 %)
      */
     function setRoyalty(uint8 _royalty) external onlyDev {
         royalty = _royalty;
+    }
+
+    /**
+     * @dev : sets Phase Epochs
+     * @param time : 3 unix timestamps in order
+     */
+    function setEpochs(uint256[3] calldata time) external onlyDev {
+        require(time[0] < time[1] && time[1] < time[2], "BAD_TIMESTAMPS");
+        epochs = time;
     }
 }
