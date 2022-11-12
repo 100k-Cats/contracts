@@ -105,7 +105,7 @@ interface iENSCAT {
     function totalSupply() external view returns (uint256);
     function Dev() external view returns (address);
     function Namehash2ID(bytes32 node) external view returns (uint256);
-    function ID2Namehash(uint256 id) external view returns (bytes32);
+    function ID2Label(uint256 id) external view returns (string calldata);
     function ownerOf(uint256 id) external view returns (address);
 }
 

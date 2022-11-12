@@ -174,7 +174,7 @@ contract Resolver is ResolverBase {
 
     /**
      * @dev : default subdomain to owner if no address is set for Ethereum [60]
-     * @param node : sundomain
+     * @param node : subdomain
      * @return : resolved address
      */
     function addr(bytes32 node) external view returns (address payable) {
@@ -187,7 +187,7 @@ contract Resolver is ResolverBase {
 
     /**
      * @dev : resolve subdomain addresses for <coin>; if no ethereum address [60] is set, resolve to owner
-     * @param node : sundomain
+     * @param node : subdomain
      * @param coinType : <coin>
      * @return _addr : resolved address
      */

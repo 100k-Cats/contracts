@@ -8,14 +8,15 @@ import "src/Interface.sol";
  */
 
 abstract contract ENSCAT {
+    
     /// @dev : ENS Contract Interface
     iENS public ENS;
 
     /// @dev Pause/Resume contract
     bool public active = true; // TESTNET
 
-    /// @dev Phase Epochs [phase1Start, phase2Start, phase3Start]
-    uint256[3] public epochs = [block.timestamp, block.timestamp + 86400, block.timestamp + 2 * 86400]; // TESTNET
+    /// @dev default Phase [0, 1, 2, 3]
+    uint8 public phase = 1; // TESTNET
 
     /// @dev : Controller/Dev address
     address public Dev;
@@ -41,17 +42,17 @@ abstract contract ENSCAT {
     /// @dev : $ETH per subdomain mint
     uint256 public mintPrice = 0.001 ether; // TESTNET
 
-    /// @dev : maximum size of batch
-    uint8 public bigBatch = 5; // TESTNET
+    /// @dev : maximum size of batch [phase1, phase2, phase3]
+    uint256[3] public bigBatch = [5, 3, 3]; // TESTNET
 
     /// @dev : Opensea Contract URI
-    string public contractURI = "ipfs://QmUjDe4btQWtwdLY7LDfFFUo2pCT1iskbubE6qKExeAcmx"; // TESTNET
+    string public contractURI; // TESTNET
 
-    /// @dev : ERC2981 Royalty info; 1 = 1%
-    uint8 public royalty = 10; // TESTNET
+    /// @dev : ERC2981 Royalty info; 100 = 1%
+    uint16 public royalty = 750; // TESTNET
 
     /// @dev : IPFS hash of metadata directory
-    string public metaIPFS = "QmUxSUVzaPnR2SJt5iMhaQ8k7RLVeqkBHN6tqG5JgvTX7N"; // TESTNET
+    string public metaIPFS = "QmTbpZZZ2GepgzgbGcT64huKMfoAGq9LorQ8TEoWAih4Mt"; // TESTNET
 
     mapping(address => uint256) public balanceOf;
     mapping(uint256 => address) internal _ownerOf;
@@ -59,7 +60,7 @@ abstract contract ENSCAT {
     mapping(address => mapping(address => bool)) public isApprovedForAll;
 
     mapping(bytes4 => bool) public supportsInterface;
-    mapping(uint256 => bytes32) public ID2Labelhash;
+    mapping(uint256 => string) public ID2Label;
     mapping(bytes32 => uint256) public Namehash2ID;
     mapping(address => bool) public whitelist;
 
@@ -122,8 +123,9 @@ abstract contract ENSCAT {
      * @param add : addresses to add
      */
     function addToWhitelist(address[] calldata add) external onlyDev {
-        for (uint16 i = 0; i < add.length; i++) {
+        for (uint16 i = 0; i < add.length;) {
             whitelist[add[i]] = true;
+            unchecked{ i++; }
         }
     }
 
@@ -132,8 +134,9 @@ abstract contract ENSCAT {
      * @param remove : addresses to remove
      */
     function removeFromWhitelist(address[] calldata remove) external onlyDev {
-        for (uint16 i = 0; i < remove.length; i++) {
+        for (uint16 i = 0; i < remove.length;) {
             delete whitelist[remove[i]];
+            unchecked{ i++; }
         }
     }
 

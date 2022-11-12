@@ -18,12 +18,12 @@ contract ENSCATScript is Script {
 
         /// @dev : Generate contract address before deployment
         address deployer = address(msg.sender);
-        address enscatAddr = deployer.genAddr(vm.getNonce(deployer) + 1);
-        Resolver resolver = new Resolver(enscatAddr);
+        address enscat = deployer.genAddr(vm.getNonce(deployer) + 1);
+        Resolver resolver = new Resolver(enscat);
         ENS100kCAT _enscat = new ENS100kCAT(address(resolver), 100_000);
 
         /// @dev : Check if generated address matches deployed address
-        require(address(_enscat) == enscatAddr, "CRITICAL: ADDRESSES NOT MATCHING");
+        require(address(_enscat) == enscat, "CRITICAL: ADDRESSES NOT MATCHING");
 
         /// @dev : Set Resolver, Controller
         iENS _ens = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);

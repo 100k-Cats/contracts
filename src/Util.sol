@@ -3,7 +3,6 @@ pragma solidity >0.8.0 <0.9.0;
 
 // Utility functions
 library Util {
-
     /**
      * @dev Check if string is purely numeric
      * @param str : string
@@ -12,12 +11,13 @@ library Util {
     function isNumeric(string memory str) public pure returns (bool) {
         bytes memory b = bytes(str);
         if(b.length > 13) return false;
-        for(uint i; i<b.length; i++){
+        for(uint i; i < b.length;){
             bytes1 char = b[i];
             if(
                 !(char >= 0x30 && char <= 0x39) //9-0
             )
                 return false;
+            unchecked { i++; }
         }
         return true;
     }
@@ -33,10 +33,11 @@ library Util {
         returns (uint _ret) {
         bytes memory _bytesValue = bytes(_value);
         uint j = 1;
-        for(uint i = _bytesValue.length-1; i >= 0 && i < _bytesValue.length; i--) {
+        for(uint i = _bytesValue.length-1; i >= 0 && i < _bytesValue.length;) {
             assert(uint8(_bytesValue[i]) >= 48 && uint8(_bytesValue[i]) <= 57);
             _ret += (uint8(_bytesValue[i]) - 48)*j;
             j*=10;
+            unchecked { i--; }
         }
     }
 
@@ -103,9 +104,10 @@ library Util {
     function toHexString(bytes memory buffer) internal pure returns (string memory) {
         bytes memory converted = new bytes(buffer.length * 2);
         bytes memory _base = "0123456789abcdef";
-        for (uint256 i; i < buffer.length; i++) {
+        for (uint256 i; i < buffer.length;) {
             converted[i * 2] = _base[uint8(buffer[i]) / 16];
             converted[i * 2 + 1] = _base[uint8(buffer[i]) % 16];
+            unchecked { i++; }
         }
         return string(abi.encodePacked("0x", converted));
     }

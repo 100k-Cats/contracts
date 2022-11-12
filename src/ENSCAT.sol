@@ -29,6 +29,7 @@ contract ENS100kCAT is ENSCAT {
      * @param _maxSupply : maximum supply of subdomains
      */
     constructor(address _resolver, uint256 _maxSupply) {
+        contractURI = "ipfs://QmZT2ZxQC27tkvLZCrVbC3EfPm1fpjixDMC77fuFAuNjGh"; // TESTNET
         Dev = msg.sender;
         ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
         DefaultResolver = _resolver;
@@ -54,15 +55,6 @@ contract ENS100kCAT is ENSCAT {
     }
 
     /**
-     * @dev returns namehash of token ID
-     * @param id : token ID
-     * @return : namehash of corresponding subdomain
-     */
-    function ID2Namehash(uint256 id) public view isValidToken(id) returns (bytes32) {
-        return keccak256(abi.encodePacked(DomainHash, ID2Labelhash[id]));
-    }
-
-    /**
      * @dev mint() function for single sudomain
      * @param digits : subdomain to mint
      */
@@ -84,9 +76,9 @@ contract ENS100kCAT is ENSCAT {
             revert IllegalENS(digits);
         }
         // check permissions depending on phase of mint
-        if (block.timestamp < epochs[0]) { // too soon to mint
+        if (phase == 0) {
             revert TooSoonToMint();
-        } else if (block.timestamp >= epochs[0] && block.timestamp < epochs[1]) { // Phase 1
+        } else if (phase == 1) {
             // get ENS ownership
             address digitOwner = ENS.owner(keccak256(
                 abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
@@ -94,7 +86,8 @@ contract ENS100kCAT is ENSCAT {
             if (msg.sender != digitOwner) {
                 revert NotOwnerOfENS(digits);
             }
-        } else if (block.timestamp >= epochs[1] && block.timestamp < epochs[2]) { 
+        } else if (phase == 2) {
+            // check whitelist
             require(whitelist[msg.sender], "NOT_IN_WHITELIST");
         }
 
@@ -106,7 +99,7 @@ contract ENS100kCAT is ENSCAT {
             revert DigitNotAvailable(digits);
         }
         ENS.setSubnodeRecord(DomainHash, _labelhash, msg.sender, DefaultResolver, 0);
-        ID2Labelhash[_id] = _labelhash;
+        ID2Label[_id] = digits;
         Namehash2ID[keccak256(abi.encodePacked(DomainHash, _labelhash))] = _id;
         unchecked {
             ++totalSupply;
@@ -125,9 +118,9 @@ contract ENS100kCAT is ENSCAT {
         if (!active) {
             revert MintingPaused();
         }
-        uint256 batchSize = _list.length;
         // check batch size and supply
-        if (_list.length > bigBatch || totalSupply + batchSize > maxSupply) {
+        uint256 batchSize = _list.length;
+        if (batchSize > bigBatch[phase - 1] || totalSupply + batchSize > maxSupply ) {
             revert IllegalBatch(_list);
         }
         // check payment
@@ -135,17 +128,18 @@ contract ENS100kCAT is ENSCAT {
             revert InsufficientEtherSent(mintPrice * batchSize, msg.value);
         }
         // check if ENSes belong to 100k Club
-        for (uint8 i = 0; i < batchSize; i++) {
+        for (uint8 i = 0; i < batchSize;) {
             string memory digits = _list[i];
             if (digits.strlen() != 5 || !digits.isNumeric()) {
                 revert IllegalENS(digits);
             }
+            unchecked{ i++; }
         }
         // check permissions depending on phase of mint
-        if (block.timestamp < epochs[0]) { // too soon to mint
+        if (phase == 0) {
             revert TooSoonToMint();
-        } else if (block.timestamp >= epochs[0] && block.timestamp < epochs[1]) { // Phase 1
-            for (uint8 i = 0; i < batchSize; i++) {
+        } else if (phase == 1) {
+            for (uint8 i = 0; i < batchSize;) {
                 string memory digits = _list[i];
                 // get ENS ownership
                 address digitOwner = ENS.owner(keccak256(
@@ -154,15 +148,16 @@ contract ENS100kCAT is ENSCAT {
                 if (msg.sender != digitOwner) {
                     revert NotOwnerOfENS(digits);
                 }
+                unchecked{ i++; }
             }
-        } else if (block.timestamp >= epochs[1] && block.timestamp < epochs[2]) { // Phase 2
+        } else if (phase == 2) {
+            // check whitelist
             require(whitelist[msg.sender], "NOT_IN_WHITELIST");
         }
 
         uint256 _id = totalSupply;
-        uint256 _mint = _id + batchSize;
         bytes32 _labelhash;
-        for (uint8 i = 0; i < batchSize; i++) {
+        for (uint8 i = 0; i < batchSize;) {
             _labelhash = keccak256(abi.encodePacked(_list[i]));
             // check if subdomain is available to mint
             address subOwner = ENS.owner(keccak256(abi.encodePacked(DomainHash, _labelhash)));
@@ -170,16 +165,17 @@ contract ENS100kCAT is ENSCAT {
                 revert DigitNotAvailable(_list[i]);
             }
             ENS.setSubnodeRecord(DomainHash, _labelhash, msg.sender, DefaultResolver, 0);
-            ID2Labelhash[_id] = _labelhash;
+            ID2Label[_id] = _list[i];
             Namehash2ID[keccak256(abi.encodePacked(DomainHash, _labelhash))] = _id;
             _ownerOf[_id] = msg.sender;
             emit Transfer(address(0), msg.sender, _id);
             unchecked {
                 ++_id;
+                i++;
             }
         }
         unchecked {
-            totalSupply = _mint;
+            totalSupply = _id;
             balanceOf[msg.sender] += batchSize;
         }
     }
@@ -203,7 +199,7 @@ contract ENS100kCAT is ENSCAT {
             revert Unauthorized(msg.sender, from, id);
         }
 
-        ENS.setSubnodeOwner(DomainHash, ID2Labelhash[id], to);
+        ENS.setSubnodeOwner(DomainHash, keccak256(abi.encodePacked(ID2Label[id])), to);
         unchecked {
             --balanceOf[from]; // subtract from owner
             ++(balanceOf[to]); // add to receiver
@@ -262,7 +258,6 @@ contract ENS100kCAT is ENSCAT {
         if (msg.sender != _ownerOf[id]) {
             revert Unauthorized(msg.sender, _ownerOf[id], id);
         }
-
         getApproved[id] = approved;
         emit Approval(msg.sender, approved, id);
     }
@@ -283,7 +278,7 @@ contract ENS100kCAT is ENSCAT {
      * @return : IPFS path to metadata directory
      */
     function tokenURI(uint256 id) external view isValidToken(id) returns (string memory) {
-        return string.concat("ipfs://", metaIPFS, "/", id.toString(), ".json");
+        return string.concat("ipfs://", metaIPFS, "/", ID2Label[id], ".json");
     }
 
     /**
@@ -294,7 +289,7 @@ contract ENS100kCAT is ENSCAT {
      */
     function royaltyInfo(uint256 id, uint256 _salePrice) external view returns (address, uint256) {
         id; //silence warning
-        return (Dev, _salePrice / 100 * royalty);
+        return (Dev, _salePrice / 10_000 * royalty);
     }
 
     // Contract Management
@@ -341,18 +336,18 @@ contract ENS100kCAT is ENSCAT {
 
     /**
      * @dev EIP2981 royalty standard
-     * @param _royalty : royalty (1 = 1 %)
+     * @param _royalty : royalty (100 = 1 %)
      */
-    function setRoyalty(uint8 _royalty) external onlyDev {
+    function setRoyalty(uint16 _royalty) external onlyDev {
         royalty = _royalty;
     }
 
     /**
-     * @dev : sets Phase Epochs
-     * @param time : 3 unix timestamps in order
+     * @dev : sets Phase
+     * @param value : phase
      */
-    function setEpochs(uint256[3] calldata time) external onlyDev {
-        require(time[0] < time[1] && time[1] < time[2], "BAD_TIMESTAMPS");
-        epochs = time;
+    function setPhase(uint8 value) external onlyDev {
+        require(value >= 1 && value <= 3, "BAD_VALUE");
+        phase = value;
     }
 }
