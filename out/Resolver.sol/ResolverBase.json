@@ -184,7 +184,7 @@
     "withdrawEther()": "7362377b",
     "withdrawToken(address,uint256)": "9e281a98"
   },
-  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"InvalidTokenID\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"NotSubdomainOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_dev\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_you\",\"type\":\"address\"}],\"name\":\"OnlyDev\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"Unauthorized\",\"type\":\"error\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"ENS\",\"outputs\":[{\"internalType\":\"contract iENS\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ENSCAT\",\"outputs\":[{\"internalType\":\"contract iENSCAT\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"sig\",\"type\":\"bytes4\"},{\"internalType\":\"bool\",\"name\":\"value\",\"type\":\"bool\"}],\"name\":\"setInterface\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawEther\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"bal\",\"type\":\"uint256\"}],\"name\":\"withdrawToken\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\": ENSCAT Resolver Base\",\"kind\":\"dev\",\"methods\":{\"setInterface(bytes4,bool)\":{\"details\":\": setInterface\",\"params\":{\"sig\":\": signature\",\"value\":\": boolean\"}},\"withdrawEther()\":{\"details\":\": withdraw ether only to Dev (or multi-sig)\"},\"withdrawToken(address,uint256)\":{\"details\":\": to be used in case some tokens get locked in the contract\",\"params\":{\"bal\":\": token balance to withdraw\",\"token\":\": token to release\"}}},\"stateVariables\":{\"ENS\":{\"details\":\": ENS Contract Interface\"},\"ENSCAT\":{\"details\":\": ENSCAT Contract Interface\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/Resolver.sol\":\"ResolverBase\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":6666},\"remappings\":[\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\"]},\"sources\":{\"src/Interface.sol\":{\"keccak256\":\"0x1081880c79b11bf1071a7ba4e395a1679df22bfea47e171f2a88a8001d1f8f96\",\"license\":\"WTFPL v6.9\",\"urls\":[\"bzz-raw://fb17750c9245702bd8e252090ed910975bc280f89f3f8cfb214ac34c87c6fa90\",\"dweb:/ipfs/QmVGYc5oXmLriiN2TtJgdaBxwU7rmQDo4U4tqCqQe14tBK\"]},\"src/Resolver.sol\":{\"keccak256\":\"0x4c3f9fbadcf8ccec5ee6a315c27abc75dcd1d8e53c20755ee52e4ffe74c0d3a5\",\"license\":\"WTFPL v6.9\",\"urls\":[\"bzz-raw://44a9d7fcb4fd4157071e279a6bdc9d935804545478e682e13432b939c8cf4b78\",\"dweb:/ipfs/QmfKJXi9MFKLFQMQjNiRqjJMbB73eZoU83qpHXxJfJahY2\"]},\"src/Util.sol\":{\"keccak256\":\"0x5cdefc66a2e6531ebe718b64eab69a8756679173771a37317fe39b11d00653d0\",\"license\":\"WTFPL v6.9\",\"urls\":[\"bzz-raw://6fcf7bcd1dd7d7263e57835a324149f54f4ac26ec9199beb58da944e95afb9e8\",\"dweb:/ipfs/QmYyY3Zz2M58vLAzvawquGY6GQJt5dB21WNeTdnZat6qpQ\"]}},\"version\":1}",
+  "rawMetadata": "{\"compiler\":{\"version\":\"0.8.16+commit.07a7930e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"InvalidTokenID\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"NotSubdomainOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_dev\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_you\",\"type\":\"address\"}],\"name\":\"OnlyDev\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"}],\"name\":\"Unauthorized\",\"type\":\"error\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[],\"name\":\"ENS\",\"outputs\":[{\"internalType\":\"contract iENS\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ENSCAT\",\"outputs\":[{\"internalType\":\"contract iENSCAT\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"sig\",\"type\":\"bytes4\"},{\"internalType\":\"bool\",\"name\":\"value\",\"type\":\"bool\"}],\"name\":\"setInterface\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"name\":\"supportsInterface\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawEther\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"bal\",\"type\":\"uint256\"}],\"name\":\"withdrawToken\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\": ENSCAT Resolver Base\",\"kind\":\"dev\",\"methods\":{\"setInterface(bytes4,bool)\":{\"details\":\": setInterface\",\"params\":{\"sig\":\": signature\",\"value\":\": boolean\"}},\"withdrawEther()\":{\"details\":\": withdraw ether only to Dev (or multi-sig)\"},\"withdrawToken(address,uint256)\":{\"details\":\": to be used in case some tokens get locked in the contract\",\"params\":{\"bal\":\": token balance to withdraw\",\"token\":\": token to release\"}}},\"stateVariables\":{\"ENS\":{\"details\":\": ENS Contract Interface\"},\"ENSCAT\":{\"details\":\": ENSCAT Contract Interface\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/Resolver.sol\":\"ResolverBase\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":6666},\"remappings\":[\":ds-test/=lib/forge-std/lib/ds-test/src/\",\":forge-std/=lib/forge-std/src/\"]},\"sources\":{\"src/Interface.sol\":{\"keccak256\":\"0x1081880c79b11bf1071a7ba4e395a1679df22bfea47e171f2a88a8001d1f8f96\",\"license\":\"WTFPL v6.9\",\"urls\":[\"bzz-raw://fb17750c9245702bd8e252090ed910975bc280f89f3f8cfb214ac34c87c6fa90\",\"dweb:/ipfs/QmVGYc5oXmLriiN2TtJgdaBxwU7rmQDo4U4tqCqQe14tBK\"]},\"src/Resolver.sol\":{\"keccak256\":\"0xf6eeabcfe62da539af169f56d3e83e3024d732baf5f72d81d7a82e2e6de0fe5b\",\"license\":\"WTFPL v6.9\",\"urls\":[\"bzz-raw://ea21a123b7b70abe32d28d8db41a1f836f3e462150df277792ad3c49f522cb58\",\"dweb:/ipfs/QmPd33Ac4eYMX4aVHGH9NFb9eEbdNzAErezdZyJnudoFiZ\"]},\"src/Util.sol\":{\"keccak256\":\"0x5cdefc66a2e6531ebe718b64eab69a8756679173771a37317fe39b11d00653d0\",\"license\":\"WTFPL v6.9\",\"urls\":[\"bzz-raw://6fcf7bcd1dd7d7263e57835a324149f54f4ac26ec9199beb58da944e95afb9e8\",\"dweb:/ipfs/QmYyY3Zz2M58vLAzvawquGY6GQJt5dB21WNeTdnZat6qpQ\"]}},\"version\":1}",
   "metadata": {
     "compiler": {
       "version": "0.8.16+commit.07a7930e"
@@ -413,10 +413,10 @@
         "license": "WTFPL v6.9"
       },
       "src/Resolver.sol": {
-        "keccak256": "0x4c3f9fbadcf8ccec5ee6a315c27abc75dcd1d8e53c20755ee52e4ffe74c0d3a5",
+        "keccak256": "0xf6eeabcfe62da539af169f56d3e83e3024d732baf5f72d81d7a82e2e6de0fe5b",
         "urls": [
-          "bzz-raw://44a9d7fcb4fd4157071e279a6bdc9d935804545478e682e13432b939c8cf4b78",
-          "dweb:/ipfs/QmfKJXi9MFKLFQMQjNiRqjJMbB73eZoU83qpHXxJfJahY2"
+          "bzz-raw://ea21a123b7b70abe32d28d8db41a1f836f3e462150df277792ad3c49f522cb58",
+          "dweb:/ipfs/QmPd33Ac4eYMX4aVHGH9NFb9eEbdNzAErezdZyJnudoFiZ"
         ],
         "license": "WTFPL v6.9"
       },
@@ -433,16 +433,16 @@
   },
   "ast": {
     "absolutePath": "src/Resolver.sol",
-    "id": 24484,
+    "id": 24485,
     "exportedSymbols": {
       "Resolver": [
-        24483
+        24484
       ],
       "ResolverBase": [
         23851
       ],
       "Util": [
-        24878
+        24879
       ],
       "iENS": [
         23473
@@ -482,7 +482,7 @@
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "38:8983:11",
+    "src": "38:8990:11",
     "nodes": [
       {
         "id": 23684,
@@ -507,7 +507,7 @@
         "absolutePath": "src/Interface.sol",
         "file": "src/Interface.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 24484,
+        "scope": 24485,
         "sourceUnit": 23683,
         "symbolAliases": [],
         "unitAlias": ""
@@ -520,8 +520,8 @@
         "absolutePath": "src/Util.sol",
         "file": "src/Util.sol",
         "nameLocation": "-1:-1:-1",
-        "scope": 24484,
-        "sourceUnit": 24879,
+        "scope": 24485,
+        "sourceUnit": 24880,
         "symbolAliases": [],
         "unitAlias": ""
       },
@@ -2579,7 +2579,7 @@
         ],
         "name": "ResolverBase",
         "nameLocation": "181:12:11",
-        "scope": 24484,
+        "scope": 24485,
         "usedErrors": [
           23832,
           23840,
@@ -2588,9 +2588,9 @@
         ]
       },
       {
-        "id": 24483,
+        "id": 24484,
         "nodeType": "ContractDefinition",
-        "src": "2027:6993:11",
+        "src": "2027:7000:11",
         "nodes": [
           {
             "id": 23857,
@@ -2605,7 +2605,7 @@
                 "2073:4:11"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 24878,
+              "referencedDeclaration": 24879,
               "src": "2073:4:11"
             },
             "typeName": {
@@ -2632,7 +2632,7 @@
                 "2101:4:11"
               ],
               "nodeType": "IdentifierPath",
-              "referencedDeclaration": 24878,
+              "referencedDeclaration": 24879,
               "src": "2101:4:11"
             },
             "typeName": {
@@ -2803,7 +2803,7 @@
               ],
               "src": "2406:14:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -3769,7 +3769,7 @@
               "parameters": [],
               "src": "2504:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "public"
@@ -3973,7 +3973,7 @@
               "parameters": [],
               "src": "3304:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -4225,7 +4225,7 @@
             "mutability": "mutable",
             "name": "_contenthash",
             "nameLocation": "3621:12:11",
-            "scope": 24483,
+            "scope": 24484,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -4614,7 +4614,7 @@
               ],
               "src": "3804:20:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "public"
@@ -4953,7 +4953,7 @@
               "parameters": [],
               "src": "4248:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -4967,7 +4967,7 @@
             "mutability": "mutable",
             "name": "_addrs",
             "nameLocation": "4398:6:11",
-            "scope": 24483,
+            "scope": 24484,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -5441,7 +5441,7 @@
               "parameters": [],
               "src": "4671:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -5876,7 +5876,7 @@
               "parameters": [],
               "src": "5099:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -6512,7 +6512,7 @@
               ],
               "src": "5422:17:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -7015,7 +7015,7 @@
               ],
               "src": "5949:20:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -7084,7 +7084,7 @@
             ],
             "name": "PublicKey",
             "nameLocation": "6146:9:11",
-            "scope": 24483,
+            "scope": 24484,
             "visibility": "public"
           },
           {
@@ -7097,7 +7097,7 @@
             "mutability": "mutable",
             "name": "pubkey",
             "nameLocation": "6244:6:11",
-            "scope": 24483,
+            "scope": 24484,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -7603,7 +7603,7 @@
               "parameters": [],
               "src": "6591:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -7617,7 +7617,7 @@
             "mutability": "mutable",
             "name": "_text",
             "nameLocation": "6739:5:11",
-            "scope": 24483,
+            "scope": 24484,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -8104,7 +8104,7 @@
               "parameters": [],
               "src": "7086:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -8495,7 +8495,7 @@
               "parameters": [],
               "src": "7401:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
@@ -9136,7 +9136,7 @@
                                       "memberLocation": "7989:8:11",
                                       "memberName": "toString",
                                       "nodeType": "MemberAccess",
-                                      "referencedDeclaration": 24796,
+                                      "referencedDeclaration": 24797,
                                       "src": "7975:22:11",
                                       "typeDescriptions": {
                                         "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_string_memory_ptr_$bound_to$_t_uint256_$",
@@ -9296,7 +9296,7 @@
                                       "memberLocation": "8087:11:11",
                                       "memberName": "toHexString",
                                       "nodeType": "MemberAccess",
-                                      "referencedDeclaration": 24877,
+                                      "referencedDeclaration": 24878,
                                       "src": "8053:45:11",
                                       "typeDescriptions": {
                                         "typeIdentifier": "t_function_internal_pure$_t_bytes_memory_ptr_$returns$_t_string_memory_ptr_$bound_to$_t_bytes_memory_ptr_$",
@@ -9412,7 +9412,7 @@
                                       "memberLocation": "8172:8:11",
                                       "memberName": "toString",
                                       "nodeType": "MemberAccess",
-                                      "referencedDeclaration": 24796,
+                                      "referencedDeclaration": 24797,
                                       "src": "8147:33:11",
                                       "typeDescriptions": {
                                         "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_string_memory_ptr_$bound_to$_t_uint256_$",
@@ -9633,7 +9633,7 @@
               ],
               "src": "7721:21:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -10001,20 +10001,20 @@
               "parameters": [],
               "src": "8554:0:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 24482,
+            "id": 24483,
             "nodeType": "FunctionDefinition",
-            "src": "8765:253:11",
+            "src": "8765:260:11",
             "nodes": [],
             "body": {
-              "id": 24481,
+              "id": 24482,
               "nodeType": "Block",
-              "src": "8837:181:11",
+              "src": "8837:188:11",
               "nodes": [],
               "statements": [
                 {
@@ -10221,30 +10221,28 @@
                       "typeString": "bool"
                     }
                   },
-                  "id": 24480,
+                  "id": 24481,
                   "nodeType": "IfStatement",
-                  "src": "8884:128:11",
+                  "src": "8884:135:11",
                   "trueBody": {
-                    "id": 24479,
+                    "id": 24480,
                     "nodeType": "Block",
-                    "src": "8914:98:11",
+                    "src": "8914:105:11",
                     "statements": [
                       {
                         "expression": {
                           "arguments": [
                             {
-                              "arguments": [],
-                              "expression": {
-                                "argumentTypes": [],
-                                "expression": {
+                              "arguments": [
+                                {
                                   "arguments": [
                                     {
-                                      "id": 24472,
+                                      "id": 24474,
                                       "name": "node",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
                                       "referencedDeclaration": 24447,
-                                      "src": "8968:4:11",
+                                      "src": "8984:4:11",
                                       "typeDescriptions": {
                                         "typeIdentifier": "t_bytes32",
                                         "typeString": "bytes32"
@@ -10259,33 +10257,33 @@
                                       }
                                     ],
                                     "expression": {
-                                      "id": 24470,
+                                      "id": 24472,
                                       "name": "ENSCAT",
                                       "nodeType": "Identifier",
                                       "overloadedDeclarations": [],
                                       "referencedDeclaration": 23716,
-                                      "src": "8949:6:11",
+                                      "src": "8965:6:11",
                                       "typeDescriptions": {
                                         "typeIdentifier": "t_contract$_iENSCAT_$23672",
                                         "typeString": "contract iENSCAT"
                                       }
                                     },
-                                    "id": 24471,
+                                    "id": 24473,
                                     "isConstant": false,
                                     "isLValue": false,
                                     "isPure": false,
                                     "lValueRequested": false,
-                                    "memberLocation": "8956:11:11",
+                                    "memberLocation": "8972:11:11",
                                     "memberName": "Namehash2ID",
                                     "nodeType": "MemberAccess",
                                     "referencedDeclaration": 23657,
-                                    "src": "8949:18:11",
+                                    "src": "8965:18:11",
                                     "typeDescriptions": {
                                       "typeIdentifier": "t_function_external_view$_t_bytes32_$returns$_t_uint256_$",
                                       "typeString": "function (bytes32) view external returns (uint256)"
                                     }
                                   },
-                                  "id": 24473,
+                                  "id": 24475,
                                   "isConstant": false,
                                   "isLValue": false,
                                   "isPure": false,
@@ -10294,29 +10292,49 @@
                                   "nameLocations": [],
                                   "names": [],
                                   "nodeType": "FunctionCall",
-                                  "src": "8949:24:11",
+                                  "src": "8965:24:11",
                                   "tryCall": false,
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_uint256",
                                     "typeString": "uint256"
                                   }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_uint256",
+                                    "typeString": "uint256"
+                                  }
+                                ],
+                                "expression": {
+                                  "id": 24470,
+                                  "name": "ENSCAT",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 23716,
+                                  "src": "8949:6:11",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_contract$_iENSCAT_$23672",
+                                    "typeString": "contract iENSCAT"
+                                  }
                                 },
-                                "id": 24474,
+                                "id": 24471,
                                 "isConstant": false,
                                 "isLValue": false,
                                 "isPure": false,
                                 "lValueRequested": false,
-                                "memberLocation": "8974:8:11",
-                                "memberName": "toString",
+                                "memberLocation": "8956:8:11",
+                                "memberName": "ID2Label",
                                 "nodeType": "MemberAccess",
-                                "referencedDeclaration": 24796,
-                                "src": "8949:33:11",
+                                "referencedDeclaration": 23664,
+                                "src": "8949:15:11",
                                 "typeDescriptions": {
-                                  "typeIdentifier": "t_function_internal_pure$_t_uint256_$returns$_t_string_memory_ptr_$bound_to$_t_uint256_$",
-                                  "typeString": "function (uint256) pure returns (string memory)"
+                                  "typeIdentifier": "t_function_external_view$_t_uint256_$returns$_t_string_memory_ptr_$",
+                                  "typeString": "function (uint256) view external returns (string memory)"
                                 }
                               },
-                              "id": 24475,
+                              "id": 24476,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": false,
@@ -10325,7 +10343,7 @@
                               "nameLocations": [],
                               "names": [],
                               "nodeType": "FunctionCall",
-                              "src": "8949:35:11",
+                              "src": "8949:41:11",
                               "tryCall": false,
                               "typeDescriptions": {
                                 "typeIdentifier": "t_string_memory_ptr",
@@ -10333,20 +10351,20 @@
                               }
                             },
                             {
-                              "hexValue": "2e3130306b6361742e657468",
-                              "id": 24476,
+                              "hexValue": "2e3130306b636174302e657468",
+                              "id": 24477,
                               "isConstant": false,
                               "isLValue": false,
                               "isPure": true,
                               "kind": "string",
                               "lValueRequested": false,
                               "nodeType": "Literal",
-                              "src": "8986:14:11",
+                              "src": "8992:15:11",
                               "typeDescriptions": {
-                                "typeIdentifier": "t_stringliteral_fe1bae2237469496395fd3c8d6039b8647b8c9f36e17a1cba756c67c2a20d3b6",
-                                "typeString": "literal_string \".100kcat.eth\""
+                                "typeIdentifier": "t_stringliteral_43e9c0f2f2f766b9338f7755e534104aec29e51a311344b57a5b92ee3c63a4d3",
+                                "typeString": "literal_string \".100kcat0.eth\""
                               },
-                              "value": ".100kcat.eth"
+                              "value": ".100kcat0.eth"
                             }
                           ],
                           "expression": {
@@ -10356,8 +10374,8 @@
                                 "typeString": "string memory"
                               },
                               {
-                                "typeIdentifier": "t_stringliteral_fe1bae2237469496395fd3c8d6039b8647b8c9f36e17a1cba756c67c2a20d3b6",
-                                "typeString": "literal_string \".100kcat.eth\""
+                                "typeIdentifier": "t_stringliteral_43e9c0f2f2f766b9338f7755e534104aec29e51a311344b57a5b92ee3c63a4d3",
+                                "typeString": "literal_string \".100kcat0.eth\""
                               }
                             ],
                             "expression": {
@@ -10394,7 +10412,7 @@
                               "typeString": "function () pure returns (string memory)"
                             }
                           },
-                          "id": 24477,
+                          "id": 24478,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": false,
@@ -10403,7 +10421,7 @@
                           "nameLocations": [],
                           "names": [],
                           "nodeType": "FunctionCall",
-                          "src": "8935:66:11",
+                          "src": "8935:73:11",
                           "tryCall": false,
                           "typeDescriptions": {
                             "typeIdentifier": "t_string_memory_ptr",
@@ -10411,9 +10429,9 @@
                           }
                         },
                         "functionReturnParameters": 24451,
-                        "id": 24478,
+                        "id": 24479,
                         "nodeType": "Return",
-                        "src": "8928:73:11"
+                        "src": "8928:80:11"
                       }
                     ]
                   }
@@ -10443,7 +10461,7 @@
                   "name": "node",
                   "nameLocation": "8787:4:11",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24482,
+                  "scope": 24483,
                   "src": "8779:12:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -10477,7 +10495,7 @@
                   "name": "_name",
                   "nameLocation": "8830:5:11",
                   "nodeType": "VariableDeclaration",
-                  "scope": 24482,
+                  "scope": 24483,
                   "src": "8816:19:11",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -10500,7 +10518,7 @@
               ],
               "src": "8815:21:11"
             },
-            "scope": 24483,
+            "scope": 24484,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -10535,12 +10553,12 @@
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          24483,
+          24484,
           23851
         ],
         "name": "Resolver",
         "nameLocation": "2036:8:11",
-        "scope": 24484,
+        "scope": 24485,
         "usedErrors": [
           23832,
           23840,

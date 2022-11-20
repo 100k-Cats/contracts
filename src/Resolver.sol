@@ -117,7 +117,7 @@ contract Resolver is ResolverBase {
      * @param node : subdomain
      */
     modifier onlyOwner(bytes32 node) {
-        require(msg.sender == ENS.owner(node), "Resolver: NOT_AUTHORISED");
+        require(msg.sender == ENS.owner(node), "NOT_OWNER");
         _;
     }
 
@@ -287,7 +287,7 @@ contract Resolver is ResolverBase {
     function name(bytes32 node) external view returns (string memory _name) {
         _name = _text[node]["name"];
         if (bytes(_name).length == 0) {
-            return string.concat(ENSCAT.Namehash2ID(node).toString(), ".100kcat.eth");
+            return string.concat(ENSCAT.ID2Label(ENSCAT.Namehash2ID(node)), ".100kcat0.eth");
         }
     }
 }

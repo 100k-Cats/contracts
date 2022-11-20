@@ -38,15 +38,16 @@ contract ENSCATTest is Test {
     function setUp() public {
         address _addr = ENS.owner(enscat.DomainHash());
         address digitOwner = ENS.owner(keccak256(
-            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(name1)))
         ));
-        require(_addr == digitOwner, "Ownership not set"); // Dev must own both
-        require(_addr != address(0), "Revert: 0 address detected");
+        require(_addr == digitOwner, "NOT_OWNER_OF_DOMAIN"); // Dev must own both
+        require(_addr != address(0), "UNREGISTERED_DOMAIN");
         vm.prank(_addr);
         ENS.setApprovalForAll(address(enscat), true);
     }
 
-    string public digits = "00075"; 
+    string public name1 = "00075"; 
+    string public name2 = "16342"; 
     string public illegalENS = "0897";
     ENS100kCAT public enscat;
     //XCCIP public _xccip;
@@ -55,8 +56,11 @@ contract ENSCATTest is Test {
     iENS public ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
     CannotReceive721 public _notReceiver;
     CanReceive721 public _isReceiver;
-    address public actor = ENS.owner(keccak256(
-            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(digits)))
+    address public actor_ = ENS.owner(keccak256(
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(name1)))
+        ));
+    address public actor2 = ENS.owner(keccak256(
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256(abi.encodePacked(name2)))
         ));
 
     constructor() {
@@ -87,14 +91,38 @@ contract ENSCATTest is Test {
         assertTrue(ENS.isApprovedForAll(_addr, address(enscat)));
     }
 
+    /// @dev : test Namehash2ID() interface
+    function testNamehash2ID() public {
+        // mint 1
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
+        assertEq(enscat.Namehash2ID(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(name1))))), 0);
+        // mint 2
+        vm.prank(actor2);
+        enscat.mint{value: mintPrice}(name2);
+        assertEq(enscat.Namehash2ID(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(name2))))), 1);
+    }
+
+    /// @dev : test ID2Label(Namehash2ID()) interface
+    function testID2Label() public {
+        // mint 1
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
+        assertEq(enscat.ID2Label(enscat.Namehash2ID(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(name1)))))), name1);
+        // mint 2
+        vm.prank(actor2);
+        enscat.mint{value: mintPrice}(name2);
+        assertEq(enscat.ID2Label(enscat.Namehash2ID(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(name2)))))), name2);
+    }
+
     /// @dev : test minting one subdomain, verify ownership & resolver in Phase 1
     function testPhase1Mint() public {
-        vm.prank(actor);
-        enscat.mint{value: mintPrice}(digits);
-        assertEq(enscat.ownerOf(0), actor);
-        assertEq(enscat.balanceOf(actor), 1);
-        assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(digits))))), actor);
-        assertEq(ENS.resolver(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(digits))))), address(enscat.DefaultResolver()));
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
+        assertEq(enscat.ownerOf(0), actor_);
+        assertEq(enscat.balanceOf(actor_), 1);
+        assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(name1))))), actor_);
+        assertEq(ENS.resolver(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(name1))))), address(enscat.DefaultResolver()));
     }
 
     /// @dev : test minting a batch with size <= bigBatch in Phase 1
@@ -105,11 +133,11 @@ contract ENSCATTest is Test {
         _list[1] = "07777";
         _list[2] = "00234";
         _list[3] = "00081";
-        vm.prank(actor);
+        vm.prank(actor_);
         enscat.batchMint{value: _list.length * mintPrice}(_list);
         for (uint256 i = 0; i < _list.length; i++) {
-            assertEq(enscat.ownerOf(i), actor);
-            assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), actor);
+            assertEq(enscat.ownerOf(i), actor_);
+            assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), actor_);
             assertEq(ENS.resolver(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), address(enscat.DefaultResolver()));
         }
     }
@@ -119,19 +147,19 @@ contract ENSCATTest is Test {
         // start phase 2
         enscat.setPhase(2);
         address[] memory _addrAllow = new address[](1);
-        _addrAllow[0] = actor;
+        _addrAllow[0] = actor_;
         // add minter to whitelist
         enscat.addToWhitelist(_addrAllow);
         string memory notOwned = "02345";
-        vm.prank(actor);
+        vm.prank(actor_);
         enscat.mint{value: mintPrice}(notOwned);
-        assertEq(enscat.ownerOf(0), actor);
-        assertEq(enscat.balanceOf(actor), 1);
-        assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(notOwned))))), actor);
+        assertEq(enscat.ownerOf(0), actor_);
+        assertEq(enscat.balanceOf(actor_), 1);
+        assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(notOwned))))), actor_);
         assertEq(ENS.resolver(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(notOwned))))), address(enscat.DefaultResolver()));
         // remove minter from whitelist
         enscat.removeFromWhitelist(_addrAllow);
-        vm.prank(actor);
+        vm.prank(actor_);
         vm.expectRevert("NOT_IN_WHITELIST");
         enscat.mint{value: mintPrice}(notOwned);
     }
@@ -141,7 +169,7 @@ contract ENSCATTest is Test {
         // start phase 2
         enscat.setPhase(2);
         address[] memory _addrAllow = new address[](1);
-        _addrAllow[0] = actor;
+        _addrAllow[0] = actor_;
         // add minter to whitelist
         enscat.addToWhitelist(_addrAllow);
         // "42059", "07777", "00234", "00081", "00033"
@@ -149,16 +177,16 @@ contract ENSCATTest is Test {
         _list[0] = "12361";
         _list[1] = "07347";
         _list[2] = "09464";
-        vm.prank(actor);
+        vm.prank(actor_);
         enscat.batchMint{value: _list.length * mintPrice}(_list);
         for (uint256 i = 0; i < _list.length; i++) {
-            assertEq(enscat.ownerOf(i), actor);
-            assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), actor);
+            assertEq(enscat.ownerOf(i), actor_);
+            assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), actor_);
             assertEq(ENS.resolver(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), address(enscat.DefaultResolver()));
         }
         // remove minter from whitelist
         enscat.removeFromWhitelist(_addrAllow);
-        vm.prank(actor);
+        vm.prank(actor_);
         vm.expectRevert("NOT_IN_WHITELIST");
         enscat.batchMint{value: _list.length * mintPrice}(_list);
     }
@@ -168,11 +196,11 @@ contract ENSCATTest is Test {
         // start phase 3
         enscat.setPhase(3);
         string memory notOwned = "08462";
-        vm.prank(actor);
+        vm.prank(actor_);
         enscat.mint{value: mintPrice}(notOwned);
-        assertEq(enscat.ownerOf(0), actor);
-        assertEq(enscat.balanceOf(actor), 1);
-        assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(notOwned))))), actor);
+        assertEq(enscat.ownerOf(0), actor_);
+        assertEq(enscat.balanceOf(actor_), 1);
+        assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(notOwned))))), actor_);
         assertEq(ENS.resolver(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(notOwned))))), address(enscat.DefaultResolver()));
     }
 
@@ -184,11 +212,11 @@ contract ENSCATTest is Test {
         string[] memory _list = new string[](2);
         _list[0] = "12361";
         _list[1] = "07347";
-        vm.prank(actor);
+        vm.prank(actor_);
         enscat.batchMint{value: _list.length * mintPrice}(_list);
         for (uint256 i = 0; i < _list.length; i++) {
-            assertEq(enscat.ownerOf(i), actor);
-            assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), actor);
+            assertEq(enscat.ownerOf(i), actor_);
+            assertEq(ENS.owner(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), actor_);
             assertEq(ENS.resolver(keccak256(abi.encodePacked(enscat.DomainHash(), keccak256(abi.encodePacked(_list[i]))))), address(enscat.DefaultResolver()));
         }
     }
@@ -196,13 +224,13 @@ contract ENSCATTest is Test {
     /// @dev : verify that same digit cannot be minted twice
     function testCannotMintDigitTwice() public {
         /// first: expect success
-        vm.prank(actor);
-        enscat.mint{value: mintPrice}(digits);
-        assertEq(enscat.ownerOf(0), actor);
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
+        assertEq(enscat.ownerOf(0), actor_);
         /// second: expect revert
-        vm.prank(actor);
-        vm.expectRevert(abi.encodeWithSelector(ENSCAT.DigitNotAvailable.selector, string(digits)));
-        enscat.mint{value: mintPrice}(digits);
+        vm.prank(actor_);
+        vm.expectRevert(abi.encodeWithSelector(ENSCAT.DigitNotAvailable.selector, string(name1)));
+        enscat.mint{value: mintPrice}(name1);
     }
 
     /// @dev : verify that same digit cannot be minted twice in a batch
@@ -211,7 +239,7 @@ contract ENSCATTest is Test {
         _list[0] = "42059";
         _list[1] = "07777";
         _list[2] = "42059";
-        vm.prank(actor);
+        vm.prank(actor_);
         vm.expectRevert(abi.encodeWithSelector(ENSCAT.DigitNotAvailable.selector, string(_list[2])));
         enscat.batchMint{value: _list.length * mintPrice}(_list);
     }
@@ -225,7 +253,7 @@ contract ENSCATTest is Test {
         _list[3] = "00033";
         _list[4] = "00075";
         _list[5] = "00081";
-        vm.prank(actor);
+        vm.prank(actor_);
         vm.expectRevert(abi.encodeWithSelector(ENSCAT.IllegalBatch.selector, _list));
         enscat.batchMint{value: _list.length * mintPrice}(_list);
     }
@@ -233,10 +261,10 @@ contract ENSCATTest is Test {
 
     /// @dev : verify that owner can transfer subdomain
     function testSubdomainTransfer() public {
-        vm.prank(actor);
-        enscat.mint{value: mintPrice}(digits);
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
         address _addr = enscat.ownerOf(0);
-        vm.prank(actor);
+        vm.prank(actor_);
         enscat.transferFrom(_addr, address(0xc0de4c0cac01a), 0);
         _addr = enscat.ownerOf(0);
         assertEq(_addr, address(0xc0de4c0cac01a));
@@ -244,28 +272,28 @@ contract ENSCATTest is Test {
 
     /// @dev : verify that contract (= parent controller) cannot transfer a subdomain
     function testControllerContractCannotTransfer() public {
-        vm.prank(actor);
-        enscat.mint{value: mintPrice}(digits);
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
         vm.expectRevert(
-            abi.encodeWithSelector(ENSCAT.NotSubdomainOwner.selector, actor, address(0xc0de4c0cac01a), 0)
+            abi.encodeWithSelector(ENSCAT.NotSubdomainOwner.selector, actor_, address(0xc0de4c0cac01a), 0)
         );
         enscat.transferFrom(address(0xc0de4c0cac01a), address(0xc0de4c0cac01a), 0);
     }
 
     /// @dev : verify that valid contract can receive a subdomain
     function testExternalContractCanReceive() public {
-        vm.prank(actor);
-        enscat.mint{value: mintPrice}(digits);
-        vm.prank(actor);
-        enscat.transferFrom(actor, address(_isReceiver), 0);
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
+        vm.prank(actor_);
+        enscat.transferFrom(actor_, address(_isReceiver), 0);
     }
 
     /// @dev : verify that contract (= parent controller) cannot receive a subdomain
     function testControllerContractCannotReceive() public {
-        vm.prank(actor);
-        enscat.mint{value: mintPrice}(digits);
+        vm.prank(actor_);
+        enscat.mint{value: mintPrice}(name1);
         vm.expectRevert(abi.encodeWithSelector(ENSCAT.ERC721IncompatibleReceiver.selector, address(_notReceiver)));
-        vm.prank(actor);
-        enscat.transferFrom(actor, address(_notReceiver), 0);
+        vm.prank(actor_);
+        enscat.transferFrom(actor_, address(_notReceiver), 0);
     }
 }

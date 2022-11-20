@@ -34,7 +34,7 @@ contract ENS100kCAT is ENSCAT {
         ENS = iENS(0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e);
         DefaultResolver = _resolver;
         DomainHash = keccak256(
-            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256("100kcat"))
+            abi.encodePacked(keccak256(abi.encodePacked(bytes32(0), keccak256("eth"))), keccak256("100kcat0"))
         );
         maxSupply = _maxSupply;
         // Interface
@@ -120,7 +120,7 @@ contract ENS100kCAT is ENSCAT {
         }
         // check batch size and supply
         uint256 batchSize = _list.length;
-        if (batchSize > bigBatch[phase - 1] || totalSupply + batchSize > maxSupply ) {
+        if (batchSize > bigBatch[phase - 1] || totalSupply + batchSize > maxSupply) {
             revert IllegalBatch(_list);
         }
         // check payment
